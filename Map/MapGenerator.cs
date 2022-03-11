@@ -17,7 +17,8 @@ public class MapGenerator : MonoBehaviour
     public HashSet<Vector2Int> floor;
     public HashSet<Vector2Int> wall;
 
-    public GameObject enemy;
+    public GameObject enemy1;
+    public GameObject enemy2;
     public Transform enemyzone;
     public Transform bulletzone;
     public Transform pickupzone;
@@ -25,38 +26,72 @@ public class MapGenerator : MonoBehaviour
 
     public GameManager gm;
 
-    public GameObject BossRoom;
-    public GameObject Boss;
+    public GameObject BossRoom1;
+    public GameObject Boss1;
+    public GameObject BossRoom2;
+    public GameObject Boss2;
+
+    public SoundManager sm;
+
 
     void Start()
     {
         //StartRandomMap();
+        sm.PlayHomeSound();
     }
 
     public void StartRandomMap()
     {
-        BossRoom.SetActive(false);
+        BossRoom1.SetActive(false);
+        BossRoom2.SetActive(false);
         home.SetActive(false);
         spreadTileMap.ClearAllTiles();
+        sm.PlayDungeonSound();
         if (gm.stage % 5 == 4 &&!(gm.stage==0))
         {
+            sm.PlayBossSound();
+            int ran = Random.Range(0, 2);
+            if(ran == 0) {
+                player.transform.position = new Vector2(0, 0);
+                enter.transform.position = new Vector2(10, 0);
+                GameObject enemyBoss = Instantiate(Boss1, new Vector2(0, 10), transform.rotation, enemyzone);
 
-            player.transform.position = new Vector2(0, 0);
-            enter.transform.position = new Vector2(10, 0);
-            GameObject enemyBoss = Instantiate(Boss,new Vector2(0,10), transform.rotation,enemyzone);
+                Enemy_Boss enemyscript = enemyBoss.GetComponent<Enemy_Boss>();
+                enemyscript.gm = gm;
+                enemyscript.maxhp += gm.stage * 1000;
+                enemyscript.curhp += gm.stage * 1000;
+                enemyscript.player = player;
+                enemyscript.damage = 10 + gm.stage / 5;
+                enemyscript.bulletparent = bulletzone;
+                enemyscript.pickparent = pickupzone;
 
-            Enemy_Boss enemyscript = enemyBoss.GetComponent<Enemy_Boss>();
-            enemyscript.gm = gm;
-            enemyscript.maxhp += gm.stage * 100;
-            enemyscript.curhp += gm.stage * 100;
-            enemyscript.bulletparent = bulletzone;
-            enemyscript.pickparent = pickupzone;
+                CircleCollider2D coll = enemyBoss.GetComponent<CircleCollider2D>();
 
-            CircleCollider2D coll = enemyBoss.GetComponent<CircleCollider2D>();
+                BossRoom1.SetActive(true);
 
-            BossRoom.SetActive(true);
+                return;
+            }
+            else 
+            {
+                player.transform.position = new Vector2(0, 0);
+                enter.transform.position = new Vector2(10, 0);
+                GameObject enemyBoss = Instantiate(Boss2, new Vector2(0, 10), transform.rotation, enemyzone);
 
-            return;
+                Enemy_Boss2 enemyscript = enemyBoss.GetComponent<Enemy_Boss2>();
+                enemyscript.gm = gm;
+                enemyscript.maxhp += gm.stage * 1000;
+                enemyscript.curhp += gm.stage * 1000;
+                enemyscript.player = player;
+                enemyscript.damage = 10 + gm.stage / 5;
+                enemyscript.bulletparent = bulletzone;
+                enemyscript.pickparent = pickupzone;
+
+                CircleCollider2D coll = enemyBoss.GetComponent<CircleCollider2D>();
+
+                BossRoom2.SetActive(true);
+
+                return;
+            }
 
 
         }
@@ -117,26 +152,43 @@ public class MapGenerator : MonoBehaviour
 
             for (int j = space.Center().y - height / 2; j <= space.Center().y + height / 2; j++) {
 
-                int stageLevel = gm.stage / 5;
+                int stageLevel = gm.stage / 10;
                 if (stageLevel >= 10) {
                     stageLevel = 9;
                 }
-                int rannum = Random.Range(0, 100-stageLevel*10);
+                int rannum = Random.Range(0, 150-stageLevel*10);
                 if (rannum == 0) {
-                    GameObject enemyin = Instantiate(enemy,enemyzone);
+                    GameObject enemyin = Instantiate(enemy1,enemyzone);
                     
                     Enemy enemyscript = enemyin.GetComponent<Enemy>();
                     enemyscript.gm = gm;
                     enemyscript.maxhp += gm.stage * 10;
                     enemyscript.curhp += gm.stage * 10;
+                    enemyscript.damage = 10 + gm.stage/5;
                     enemyscript.bulletparent = bulletzone;
                     enemyscript.pickparent = pickupzone;
 
-                    CircleCollider2D coll = enemyin.GetComponent<CircleCollider2D>();
 
                     enemyin.transform.position = new Vector2(i+0.5f, j+0.5f);
-                    
-                    
+
+
+                }
+                if (rannum == 1)
+                {
+                    GameObject enemyin = Instantiate(enemy2, enemyzone);
+
+                    Enemy enemyscript = enemyin.GetComponent<Enemy>();
+                    enemyscript.gm = gm;
+                    enemyscript.maxhp += gm.stage * 10;
+                    enemyscript.curhp += gm.stage * 10;
+
+                    enemyscript.damage = 5 + gm.stage / 10;
+                    enemyscript.pickparent = pickupzone;
+
+
+                    enemyin.transform.position = new Vector2(i + 0.5f, j + 0.5f);
+
+
                 }
                 positions.Add(new Vector2Int(i, j));
 

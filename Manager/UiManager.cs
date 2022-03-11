@@ -117,11 +117,10 @@ public class UiManager : MonoBehaviour
         enemycount.text = map.enemyzone.childCount.ToString();
 
 
-        PlayerHpText.text = player.curhp + "/" + player.maxhp;
+        PlayerHpText.text = (float)player.curhp + "/" + player.maxhp;
        
-
-        if (player.curhp > 0)
-            PlayerHpBar.fillAmount = (float)player.curhp / (float)player.maxhp;
+    
+        PlayerHpBar.fillAmount = (float)player.curhp / (float)player.maxhp;
 
         ExpBar.fillAmount = (float)gm.experience /gm.maxexperience;
         //PlayerHpBar.localScale = new Vector3(player.curhp / (float)player.maxhp, 1, 1);

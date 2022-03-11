@@ -14,7 +14,7 @@ public class Enemy : MonoBehaviour
     public int curhp;
     public float speed = 0;
     public float bulletspeed = 0;
-    public float damage = 0;
+    public int damage = 0;
     public float range = 0;
 
     public bool isFire;
@@ -33,16 +33,22 @@ public class Enemy : MonoBehaviour
 
     public CircleCollider2D Targertcoll;
     //public SpriteRenderer tempColor;
+
+    public AudioSource audio;
+    public AudioClip onDamageSound;
+    public AudioClip deathSound;
     void Awake()
     {
+        Debug.Log("Awake");
         // tempColor = sr;
        // gm = GetComponent<GameManager>();
         //gm.GetComponent<GameManager>();
         curhp = maxhp;
         speed = 1;
         bulletspeed = 5;
-        damage = 10;
+      //  damage = 10+gm.stage;
         range = 5;
+        audio.volume = 0.1f;
 
 
         int ran = Random.Range(2, 5);
@@ -84,40 +90,42 @@ public class Enemy : MonoBehaviour
     }
 
 
-/*    private void OnTriggerEnter(Collider collision)
-    {
-        if (collision.gameObject.tag == "Bullet_Player")
+    /*    private void OnTriggerEnter(Collider collision)
         {
-            //피격함수
-            onDamage();
-        }
-    }*/
-
-    public void onDamage(int damage)
+            if (collision.gameObject.tag == "Bullet_Player")
+            {
+                //피격함수
+                onDamage();
+            }
+        }*/
+    public virtual void onDamage(int damage)
     {
         //체력이 없으면 오브젝트 삭제
         curhp -= damage;
         sr.material.color = Color.red;
         Invoke("ReturnColor", 1);
-
+        audio.clip = onDamageSound;
+        audio.Play();
         if (curhp <= 0)
         {
 
-            int ran = Random.Range(0, 50 - gm.luck);
-            if (ran >=0&& ran<5) {
+            int ran = Random.Range(0, 100 - gm.luck);
+            if (ran >=0&& ran<20) {
                 Instantiate(coin, transform.position, transform.rotation, pickparent);
             }
-            else if (ran >= 5 && ran < 15)
+            else if (ran >= 20 && ran < 30)
             {
                 Instantiate(heart, transform.position, transform.rotation, pickparent);
             }
-            else if (ran ==16)
+            else if (ran ==30)
             {
                 Instantiate(luck, transform.position, transform.rotation, pickparent);
             }
 
             gm.score += 10;
             gm.experience += Random.Range(3, 5);
+            audio.clip = deathSound;
+            audio.Play();
             Destroy(gameObject);
         }
 

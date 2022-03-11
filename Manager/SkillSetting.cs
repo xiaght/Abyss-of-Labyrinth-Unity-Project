@@ -9,12 +9,13 @@ public class SkillSetting : MonoBehaviour
     public GameManager gm;
     public enum Type
     {
-        MaxHp, Damage, Luck, MaxShotDelay, Speed, Bulletspeed,
+        MaxHp, Damage, Luck, MaxShotDelay, Speed, Bulletspeed,SkillDamage, heal,
         Special
     }
     public Type type;
 
     public float value;
+    public float value2;
     public Transform[] skillPoint;
 
     Button btn;
@@ -33,6 +34,7 @@ public class SkillSetting : MonoBehaviour
 
             case SkillSetting.Type.MaxHp:
                 player.maxhp += (int)skillbutton.value;
+                player.curhp += (int)skillbutton.value;
                 break;
 
             case SkillSetting.Type.Luck:
@@ -61,6 +63,19 @@ public class SkillSetting : MonoBehaviour
                 break;
             case SkillSetting.Type.Bulletspeed:
                 player.bulletspeed += skillbutton.value;
+                break;
+            case SkillSetting.Type.SkillDamage:
+                player.Skill1damage += skillbutton.value;
+                break;
+
+            case SkillSetting.Type.heal:
+                if (player.curhp + skillbutton.value >= player.maxhp)
+                {
+                    player.curhp = player.maxhp;
+                }
+                else {
+                    player.curhp += (int)skillbutton.value;
+                }
                 break;
 
             case SkillSetting.Type.Special:

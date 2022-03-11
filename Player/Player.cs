@@ -21,10 +21,10 @@ public class Player : MonoBehaviour
     float hAxis;
     float vAxis;
     bool fDown;
-    bool spaceDown;
-    bool skill1Down;
+    public bool spaceDown;
+    public bool skill1Down;
 
-    bool isDodge;
+    public bool isDodge;
     bool isWalk;
     bool isAttack;
 
@@ -49,17 +49,27 @@ public class Player : MonoBehaviour
     public Player_Skill1 skill1;
     public float Skill1damage;
     public bool skill1CoolTime;
-    public GameObject skill2;
-    public GameObject skill3;
+    
+
+    public int life;
 
 
     public Camera camera;
     Vector2 point;
-    Vector2 moveVec;
-    Vector3 dodgeVec;
+    public Vector2 moveVec;
+    public Vector3 dodgeVec;
 
+    public JoyStick moveStick;
+
+    public JoyStick Firestick;
+
+    public AudioSource audio;
+    public AudioClip fireSound;
+    public AudioClip onDamageSound;
+    public AudioClip dashSound;
     private void Awake()
     {
+        life = 1;
         rigid = GetComponent<Rigidbody2D>();
         curhp = maxhp;
 
@@ -80,18 +90,19 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GetInput();
+      //  GetInput();
         Move();
 
         Fire();
         Relode();
 
-        Dodge();
-        skill1Play();
+  //      Dodge();
+ //       skill1Play();
 
     }
 
-    public void GetLife() { 
+    public void GetLife() {
+        life++;
     
     }
     public void skill1Play() {
@@ -104,37 +115,49 @@ public class Player : MonoBehaviour
         }
 
     }
-    public void Skill1Out() {
+    public void Skill1Out()
+    {
 
         skill1.gameObject.SetActive(false);
     }
     public void Skill1CoolOut()
     {
         skill1CoolTime = true;
+
     }
-    void Dodge()
+
+    public void Dodge()
     {
         if (spaceDown && !isDodge && moveVec != Vector2.zero)
         {
             speed *= 2;
-            anim.SetTrigger("isDash");
+            anim.SetTrigger("isDash"); 
+            audio.clip = dashSound;
+            audio.Play();
             gameObject.layer = 9;
      //       coll.size = new Vector2(0.1f, 0.1f);
 
             isDodge = true;
-            Invoke("DodgeOut", 0.5f);
 
+            Invoke("DodgeOut", 0.5f);
+            Invoke("DodgeCool", 1f);
         }
+    }
+    void DodgeCool()
+    {
+        isDodge = false;
     }
     void DodgeOut()
     {
         gameObject.layer = 3;
-    //    coll.size = new Vector2(0.45f, 0.75f);
+        //    coll.size = new Vector2(0.45f, 0.75f);
         dodgeVec = moveVec;
-        isDodge = false;
+
         coll.enabled = true;
         speed *= 0.5f;
     }
+
+
 
 
     void Fire()
@@ -142,12 +165,14 @@ public class Player : MonoBehaviour
         //´«¹° µô·¹ÀÌ
         if (curShotDelay < MaxShotDelay)
             return;
-        if (Input.GetMouseButton(0)) {
-//            Debug.Log("1");
+        if (Firestick.m_bTouch)
+       // if (fDown)//////////////////////////////////
+         {
+                //            Debug.Log("1");
 
-  //          anim.SetTrigger("isAttack");
+                //          anim.SetTrigger("isAttack");
 
-            point = Input.mousePosition;
+                point = Input.mousePosition;
             
             Vector2 ray= camera.ScreenToWorldPoint(point);
 
@@ -164,16 +189,20 @@ public class Player : MonoBehaviour
 
                 sr.flipX = true;
             }
-            else {
+            else
+            {
 
                 sr.flipX = false;
             }
 
-            rigid1.AddForce(fireVec.normalized * bulletspeed, ForceMode2D.Impulse);
+            rigid1.AddForce(Firestick.m_vecMove.normalized * bulletspeed, ForceMode2D.Impulse);///////////////////////////////////////
             Bullet_Player bullet1 = bullet.GetComponent<Bullet_Player>();
             //´«¹° ½ºÅÝ ¼³Á¤
             bullet1.Ondamage((float)damage);
             bullet1.range = this.range;
+
+            audio.clip = fireSound;
+            audio.Play();
 
         }
             curShotDelay = 0;
@@ -196,27 +225,49 @@ public class Player : MonoBehaviour
     }
     void Move()
     {
-        moveVec = new Vector3(hAxis, vAxis).normalized;
+        moveVec = new Vector3(moveStick.m_vecMove.x, moveStick.m_vecMove.y).normalized;//////////////////////
+       moveVec = moveStick.m_vecMove.normalized;
         rigid.velocity = moveVec*speed;
         if (isDodge)
         {
             //moveVec = dodgeVec;
         }
         //transform.LookAt(transform.position +(Vector3) moveVec);
-/*        if (hAxis!=0&& !(curShotDelay < MaxShotDelay)) {
-            sr.flipX = hAxis == -1;
-        }*/
-        if (hAxis != 0 )
+        /*        if (hAxis!=0&& !(curShotDelay < MaxShotDelay)) {
+                    sr.flipX = hAxis == -1;
+                }*/
+        /*        if (moveStick.m_vecMove.x != 0 )
+                {
+                    sr.flipX = moveStick.m_vecMove.x == -1;
+                }    */
+        if (moveVec.x < 0)
         {
-            sr.flipX = hAxis == -1;
-        }    
+            sr.flipX = true;
+        }
+        else
+        {
+
+            sr.flipX = false;
+        }
+
         anim.SetBool("isRun", moveVec != Vector2.zero);
     }
 
     public void onDamage(int damage) {
         curhp -= damage;
+        audio.clip = onDamageSound;
+        audio.Play();
         if (curhp <= 0) {
-            bm.GameOver();
+            life--;
+            if (life <= 0)
+            {
+                bm.GameOver();
+            }
+            else
+            {
+                bm.Retry();
+                curhp = maxhp;
+            }
 
 
         }

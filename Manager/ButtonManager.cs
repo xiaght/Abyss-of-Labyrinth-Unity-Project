@@ -10,7 +10,42 @@ public class ButtonManager : MonoBehaviour
     public RectTransform titleoption;
     public RectTransform gameoption;
     public RectTransform gamaover;
+    public RectTransform retry;
     public GameManager gm;
+    public Player player;
+    public GameObject optionPanle;
+
+    bool escButton;
+    public void OnClickSkill1Button()
+    {
+        player.skill1Down = true;
+        player.skill1Play();
+
+    }
+
+    public void OnClickDashButton()
+    {
+        player.spaceDown = true;
+        player.Dodge();
+    }
+    public void EscOption()
+    {
+
+            if (optionPanle.activeSelf)
+            {
+                optionPanle.SetActive(false);
+                Time.timeScale = 1;
+            }
+            else
+            {
+                optionPanle.SetActive(true);
+                Time.timeScale = 0;
+            }
+
+    }
+
+
+
 
     public void OnClickStartButton()
     {
@@ -20,13 +55,23 @@ public class ButtonManager : MonoBehaviour
         gm.coin=PlayerPrefs.GetInt("Coin");
 
 
-
     }
 
     public void GameOver() {
         gamaover.gameObject.SetActive(true);
         Time.timeScale = 0;
     }
+    public void Retry()
+    {
+        retry.gameObject.SetActive(true);
+        Time.timeScale = 0;
+    }
+    public void OnClickRetryButton() {
+        retry.gameObject.SetActive(false);
+        Time.timeScale = 1;
+    }
+
+
     public void OnClickOptionButton()
     {
         titleoption.gameObject.SetActive(true);

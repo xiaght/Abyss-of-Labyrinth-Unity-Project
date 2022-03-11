@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
 
     public Texture2D cursorImg;
 
+
     private void Awake()
     {
         level = 1;
